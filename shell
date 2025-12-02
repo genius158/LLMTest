@@ -1,0 +1,17 @@
+可选 创建虚拟环境
+# 1. 赋予执行权限
+chmod +x Miniforge3-24.11.3-2-MacOSX-arm64.sh
+# 2. 运行安装（-b 表示自动安装到用户目录）
+bash Miniforge3-24.11.3-2-MacOSX-arm64.sh -b
+# 3. 初始化环境
+source ~/miniforge3/bin/activate
+# 4. 基于Python 3.10创建环境
+conda create --name tf_env python=3.9
+# 激活虚拟环境
+conda activate tf_env
+
+
+安装必要依赖库：
+pip install transformers torch accelerate sentencepiece  # 核心库
+# 可选：安装 safetensors 加速加载（若模型支持）
+pip install safetensors
