@@ -131,8 +131,8 @@ def chat_with_tools(tokenizer, model, user_input, history=None):
     system_prompt = (
         "你是一个智能助手，可以调用以下工具解决问题：\n"
         f"{json.dumps(tools, ensure_ascii=False, indent=2)}\n"
-        "调用工具时需严格按格式返回 JSON：{\"name\": \"工具名\", \"parameters\": {\"参数名\": \"值\"}}，"
-        "不要添加其他内容。如果不需要调用工具，直接回答用户问题。"
+        # "调用工具时需严格按格式返回 JSON：{\"name\": \"工具名\", \"parameters\": {\"参数名\": \"值\"}}，"
+        # "不要添加其他内容。如果不需要调用工具，直接回答用户问题。"
     )
 
 
@@ -157,7 +157,10 @@ def chat_with_tools(tokenizer, model, user_input, history=None):
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        do_sample=True
+        do_sample=True,
+        top_p=0.9,
+        repetition_penalty=1.1,
+        pad_token_id=tokenizer.pad_token_id
     )
     
     # 提取模型响应
@@ -213,7 +216,10 @@ def main():
     
     # 测试对话
     test_questions = [
-        "介绍一下 严贤炜",
+        "严贤炜的学历",
+        "严贤炜的妻子",
+        "严贤炜为人",
+        "严贤炜",
         "计算 (15 + 3) * 2 的结果",
         "what's the weather like today in beijing？",
         "搜索一下2025年科技趋势",

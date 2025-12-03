@@ -30,7 +30,7 @@ except Exception as e:
 
 # 4. 使用您的原始代码（已修复）
 # 输入文本
-prompt = "严贤炜的社交圈子"
+prompt = "你是谁"
 
 # 分词并转换为模型输入
 inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
