@@ -171,7 +171,7 @@ def ultra_safe_tokenize_and_train():
         # 2. 配置LoRA
         lora_config = LoraConfig(
             task_type=TaskType.CAUSAL_LM,
-            r=8,  # LoRA秩
+            r=16,  # LoRA秩
             lora_alpha=32,
             lora_dropout=0.1,
             target_modules=["q_proj", "v_proj"],  # 标准Transformer模块

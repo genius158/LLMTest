@@ -19,10 +19,13 @@ try:
     # 加载模型（自动分配设备）
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
-        device_map="auto",
+        device_map="cpu",
         trust_remote_code=True,
-        dtype=torch.float16  # 使用半精度节省显存
+        dtype=torch.float32  # 使用半精度节省显存
     )
+
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
     print("✅ 模型和分词器加载成功！")
 except Exception as e:
     print(f"❌ 加载失败: {e}")
@@ -30,23 +33,28 @@ except Exception as e:
 
 # 4. 使用您的原始代码（已修复）
 # 输入文本
-prompt = "你是谁"
+prompt = "胡容"
 
 # 分词并转换为模型输入
 inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
 # 生成参数
+# 更合理的生成参数配置
 generate_kwargs = {
     "max_new_tokens": 512,
     "temperature": 0.7,
     "top_p": 0.9,
     "do_sample": True,
+    "pad_token_id": tokenizer.pad_token_id,
+    "eos_token_id": tokenizer.eos_token_id,
 }
 
 # 生成输出
 outputs = model.generate(**inputs, **generate_kwargs)
 
 # 解码并打印结果
-response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+# 清理输出结果
+response = tokenizer.decode(outputs[0], skip_special_tokens=False)
+
 print("\n生成结果:")
 print(response)
