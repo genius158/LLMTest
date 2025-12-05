@@ -240,6 +240,8 @@ def ultra_safe_tokenize_and_train():
         
         # 5. 配置数据整理器（关键：让DataCollator处理labels）
         logger.info("🔧 配置DataCollator...")
+        # 喂给模型训练的标准批次数据字典（通常包含 input_ids， attention_mask， labels）
+        # DataCollatorForLanguageModeling可以自动处理
         data_collator = DataCollatorForLanguageModeling(
             tokenizer=tokenizer,
             mlm=False,  # 因果语言建模

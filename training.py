@@ -47,10 +47,10 @@ def main():
 
     def formatting_prompts_func(examples):
         messages = []
-        messages.append({
-            "role": "system",
-            "content": "你是一个AI助手"
-        })
+        # messages.append({
+        #     "role": "system",
+        #     "content": "你是一个AI助手"
+        # })
         for conv in examples["conversations"]:
             messages.append({
                 "role": conv["role"],
@@ -63,6 +63,8 @@ def main():
             tokenize=False,  # 不进行tokenize，SFTTrainer会处理
             add_generation_prompt=False
         )
+
+        print(f"🤔 对话：{formatted_text}")
 
         return formatted_text
 

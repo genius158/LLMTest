@@ -13,14 +13,14 @@ def load_model():
     try:
         tokenizer = AutoTokenizer.from_pretrained(
             model_name,
-            trust_remote_code=True,
+            # trust_remote_code=True,
             padding_side="left"
         )
         
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
             device_map="cpu",
-            trust_remote_code=True,
+            # trust_remote_code=True,
             torch_dtype=torch.float16  # 使用半精度节省显存
         )
         print("✅ 模型和分词器加载成功！")
@@ -33,6 +33,20 @@ def load_model():
 def define_tools():
     tools = [
         {
+            "name": "calculator",
+            "description": "计算数学表达式的结果（支持加减乘除、括号）",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "expression": {
+                        "type": "string",
+                        "description": "待计算的数学表达式，如 '2*(3+4)'"
+                    }
+                },
+                "required": ["expression"]
+            }
+        },
+        {
             "name": "get_weather",
             "description": "查询指定城市的实时天气（模拟接口）",
             "parameters": {
@@ -44,6 +58,20 @@ def define_tools():
                     }
                 },
                 "required": ["city"]
+            }
+        },
+        {
+            "name": "search_web",
+            "description": "在互联网上搜索最新信息",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "搜索关键词，如 '2025年科技趋势'"
+                    }
+                },
+                "required": ["query"]
             }
         }
     ]
@@ -101,16 +129,17 @@ def chat_with_tools(tokenizer, model, user_input, history=None):
     
     # 1. 构造系统提示（包含工具定义）
     system_prompt = (
-        "你是一个智能助手\n"
-        # f"{json.dumps(tools, ensure_ascii=False, indent=2)}\n"
-        # "调用工具时需严格按格式返回 JSON：{\"name\": \"工具名\", \"parameters\": {\"参数名\": \"值\"}}，"
-        # "不要添加其他内容。如果不需要调用工具，直接回答用户问题。"
+        "你是一个智能助手，可以调用以下工具解决问题：\n"
+        f"{json.dumps(tools, ensure_ascii=False, indent=2)}\n"
+        "调用工具时需严格按格式返回 JSON：{\"name\": \"工具名\", \"parameters\": {\"参数名\": \"值\"}}，"
+        "不要添加其他内容。如果不需要调用工具，直接回答用户问题。"
     )
 
     # print(f"system_prompt: {system_prompt}")
     # 2. 整理对话历史
-    messages = [{"role": "system", "content": system_prompt}]
-    # messages.extend(history)
+    messages = []
+    # messages.append({"role": "system", "content": system_prompt})
+    messages.extend(history)
     messages.append({"role": "user", "content": user_input})
 
     # print(f"🤔 对话：{messages}")
@@ -120,9 +149,10 @@ def chat_with_tools(tokenizer, model, user_input, history=None):
     text = tokenizer.apply_chat_template(
         messages, 
         tokenize=False, 
-        add_generation_prompt=True
+        add_generation_prompt=True,
+        enable_thinking=True
     )
-    
+    print(f"🤔 模型输入：{text}")
     inputs = tokenizer(text, return_tensors="pt").to(model.device)
     outputs = model.generate(
         **inputs,
@@ -185,16 +215,18 @@ def main():
     
     # 测试对话
     test_questions = [
-        "严氏集团",
         "严贤炜的学历",
         "严贤炜的妻子",
         "胡容",
         "严贤炜为人",
         "严贤炜的喜好？",
-        "计算 (15 + 3) * 2 的结果",
-        "what's the weather like today in beijing？",
-        "搜索一下2025年科技趋势",
-        "人工智能的发展历史是怎样的？",
+        "做为普通人，你如何评价严贤炜的成功",
+        "严贤炜与马云的关系如何？",
+        "严贤炜为什么能取得成功？",
+        # "计算 (15 + 3) * 2 的结果",
+        # "what's the weather like today in beijing？",
+        # "搜索一下2025年科技趋势",
+        # "人工智能的发展历史是怎样的？",
     ]
     
     history = []

@@ -33,15 +33,24 @@ except Exception as e:
 
 # 4. 使用您的原始代码（已修复）
 # 输入文本
-prompt = "胡容"
+messages = [
+    # {'role': 'system', 'content': '你是AI助手，能够全面的给出问题的回复'},
+    {'role': 'user', 'content': "多角度全面的介绍一下严贤炜"}
+]
 
+ # 3. 模型生成响应
+text = tokenizer.apply_chat_template(
+    messages, 
+    tokenize=False, 
+    add_generation_prompt=True
+)
 # 分词并转换为模型输入
-inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+inputs = tokenizer("多角度全面的介绍一下严贤炜", return_tensors="pt").to(model.device)
 
 # 生成参数
 # 更合理的生成参数配置
 generate_kwargs = {
-    "max_new_tokens": 512,
+    "max_new_tokens": 1024,
     "temperature": 0.7,
     "top_p": 0.9,
     "do_sample": True,
@@ -54,7 +63,7 @@ outputs = model.generate(**inputs, **generate_kwargs)
 
 # 解码并打印结果
 # 清理输出结果
-response = tokenizer.decode(outputs[0], skip_special_tokens=False)
+response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
 print("\n生成结果:")
 print(response)
